@@ -9,7 +9,7 @@ Dragging in this example uses relative mouse movement.
 
 import os
 import sys
-
+import random
 import pygame as pg
 
 
@@ -22,6 +22,7 @@ class Character(object):
     A class to represent our lovable red sqaure.
     """
     SIZE = (150, 150)
+    COLOR = pg.Color("red")
     
     def __init__(self, pos):
         """
@@ -39,7 +40,7 @@ class Character(object):
         a common source of bottlenecks in beginner programs.
         """
         font = pg.font.SysFont('timesnewroman', 30)
-        message = "I'm a red square"
+        message = "I'm a magic square! Watch me change color!"
         label = font.render(message, True, pg.Color("white"))
         label_rect = label.get_rect()
         return label, label_rect
@@ -55,6 +56,13 @@ class Character(object):
             self.click = True
             pg.mouse.get_rel()
 
+    def change_color(self):
+        """
+        Change character color to random rgb color
+        """
+        self.COLOR = [random.randint(0, 255) for _ in range(3)]
+
+
     def update(self, screen_rect):
         """
         If the square is currently clicked, update its position based on the
@@ -63,13 +71,14 @@ class Character(object):
         if self.click:
             self.rect.move_ip(pg.mouse.get_rel())
             self.rect.clamp_ip(screen_rect)
+            self.change_color()
         self.text_rect.center = (self.rect.centerx, self.rect.centery+90)
 
     def draw(self, surface):
         """
         Blit image and text to the target surface.
         """
-        surface.fill(pg.Color("red"), self.rect)
+        surface.fill(self.COLOR, self.rect)
         surface.blit(self.text, self.text_rect)
 
 
