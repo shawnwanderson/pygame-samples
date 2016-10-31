@@ -29,6 +29,8 @@ class Player(object):
     This class will represent our user controlled character.
     """
     SIZE = (100, 100)
+    BOUNCE = 0.5
+    JUMP = 2
     
     def __init__(self, pos, speed):
         """
@@ -38,6 +40,7 @@ class Player(object):
         self.rect = pg.Rect((0,0), Player.SIZE)
         self.rect.center = pos
         self.speed = speed
+        self.velocity = [0,0]
         self.image = self.make_image()
 
     def make_image(self):
@@ -58,13 +61,18 @@ class Player(object):
         for key in DIRECT_DICT:
             if keys[key]:
                 self.rect.x += DIRECT_DICT[key][0]*self.speed
-                self.rect.y += DIRECT_DICT[key][1]*self.speed
+        if keys[pg.K_SPACE]:
+            self.velocity[1] -= self.JUMP
+        if(not screen_rect.contains(self.rect)):
+            self.velocity = [-self.BOUNCE*v for v in self.velocity]
         self.rect.clamp_ip(screen_rect) # Keep player on screen.
 
     def draw(self, surface):
         """
         Blit image to the target surface.
         """
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
         surface.blit(self.image, self.rect)
 
 
@@ -72,6 +80,7 @@ class App(object):
     """
     A class to manage our event, game loop, and overall program flow.
     """
+    GRAVITY = 0.3
     def __init__(self):
         """
         Get a reference to the display surface; set up required attributes;
@@ -112,6 +121,7 @@ class App(object):
         while not self.done:
             self.event_loop()
             self.player.update(self.keys, self.screen_rect)
+            self.player.velocity[1] += self.GRAVITY
             self.render()
             self.clock.tick(self.fps)
 
